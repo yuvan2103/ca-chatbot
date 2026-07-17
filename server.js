@@ -1,4 +1,4 @@
-// server.js — backend for the CA Doubt-Solver chatbot
+ // server.js — backend for the CA Doubt-Solver chatbot
 // Keeps the Groq API key on the server; the browser never sees it.
 // Groq has a genuinely free tier (no card required) with generous daily limits.
 
@@ -12,7 +12,7 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 
 app.use(express.json({ limit: '1mb' }));
-app.use(express.static(path.join(__dirname, 'public')));
+app.use(express.static(path.join(__dirname, 'Public')));
 
 const SYSTEM_PROMPT = `You are a patient, precise tutor for Indian Chartered Accountancy (CA) students,
 covering CA Foundation, Intermediate, and Final level subjects: Accounting, Corporate & Other Laws,
