@@ -51,7 +51,7 @@ app.post('/api/chat', async (req, res) => {
         // llama-3.3-70b-versatile is Groq's best free-tier quality/speed balance.
         // Swap to 'llama-3.1-8b-instant' if you need higher request-per-day limits
         // and can accept slightly lower answer quality.
-        model: 'llama-3.3-70b-versatile',
+        model: 'llama-3.1-8b-instant',
         max_tokens: 1500,
         messages: openaiMessages,
       }),
