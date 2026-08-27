@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>CAT — CA Tutor</title>
+<link rel="manifest" href="/manifest.json">
+<link rel="icon" href="/icon-192.png">
+<link rel="apple-touch-icon" href="/icon-192.png">
+<meta name="theme-color" content="#2C3E66">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="CAT">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,500;8..60,700&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper: #F6F2E7;
+    --paper-line: #DCD4BC;
+    --ink: #1E2A3D;
+    --ink-soft: #4B5568;
+    --indigo: #2C3E66;
+    --brass: #9C7A24;
+    --brass-bright: #B8912E;
+    --seal-green: #4A7A58;
+    --card: #FFFDF7;
+    --radius: 3px;
+  }
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0; height: 100%;
+    background: var(--paper);
+    color: var(--ink);
+    font-family: 'Inter', sans-serif;
+  }
+  body {
+    display: flex;
+    background-image:
+      linear-gradient(var(--paper-line) 1px, transparent 1px);
+    background-size: 100% 32px;
+    background-position: 0 140px;
+  }
+
+  /* ---- Sidebar: ledger spine ---- */
+  .spine {
+    width: 220px;
+    flex-shrink: 0;
+    background: var(--indigo);
+    color: #E8ECF3;
+    padding: 28px 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+  .spine h1 {
+    font-family: 'Source Serif 4', serif;
+    font-size: 1.15rem;
+    font-weight: 700;
+    line-height: 1.3;
+    margin: 0 0 4px;
+    letter-spacing: 0.01em;
+  }
+  .spine .tagline {
+    font-size: 0.72rem;
+    color: #B7C2D6;
+    margin-bottom: 28px;
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+  }
+  .subject {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 9px 10px;
+    border-radius: var(--radius);
+    font-size: 0.85rem;
+    color: #C7D0E0;
+    cursor: pointer;
+    border-left: 2px solid transparent;
+    transition: background 0.15s, border-color 0.15s, color 0.15s;
+  }
+  .subject:hover { background: rgba(255,255,255,0.06); color: #fff; }
+  .subject.active {
+    background: rgba(184,145,46,0.16);
+    border-left-color: var(--brass-bright);
+    color: #fff;
+  }
+  .subject .dot {
+    width: 6px; height: 6px; border-radius: 50%;
+    background: var(--brass-bright);
+    flex-shrink: 0;
+  }
+  .spine-footer {
+    margin-top: auto;
+    font-size: 0.68rem;
+    color: #8A96AC;
+    line-height: 1.5;
+    border-top: 1px solid rgba(255,255,255,0.12);
+    padding-top: 14px;
+  }
+
+  /* ---- Main ledger area ---- */
+  .ledger {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+  }
+  .ledger-header {
+    padding: 26px 40px 16px;
+    background: linear-gradient(180deg, var(--paper) 80%, transparent);
+  }
+  .ledger-header .eyebrow {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.68rem;
+    color: var(--brass);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+  .ledger-header h2 {
+    font-family: 'Source Serif 4', serif;
+    font-size: 1.6rem;
+    margin: 4px 0 0;
+    color: var(--ink);
+  }
+
+  .log {
+    flex: 1;
+    overflow-y: auto;
+    padding: 8px 40px 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 22px;
+  }
+
+  .entry { max-width: 640px; }
+  .entry.user { align-self: flex-end; text-align: right; }
+  .entry.ai { align-self: flex-start; }
+
+  .entry .label {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.68rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    margin-bottom: 6px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .entry.user .label { color: var(--ink-soft); justify-content: flex-end; }
+  .entry.ai .label { color: var(--seal-green); }
+
+  .seal {
+    width: 15px; height: 15px;
+    border: 1.5px solid var(--seal-green);
+    border-radius: 50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 8px;
+    color: var(--seal-green);
+  }
+
+  .bubble {
+    background: var(--card);
+    border: 1px solid var(--paper-line);
+    border-radius: var(--radius);
+    padding: 14px 16px;
+    font-size: 0.92rem;
+    line-height: 1.55;
+    white-space: pre-wrap;
+    text-align: left;
+  }
+  .entry.user .bubble {
+    background: #EFE9D8;
+    border-color: #DCCFA6;
+  }
+  .entry.ai .bubble { border-left: 3px solid var(--seal-green); }
+
+  .entry.pending .bubble {
+    color: var(--ink-soft);
+    font-style: italic;
+  }
+
+  /* ---- Composer ---- */
+  .composer {
+    padding: 16px 40px 26px;
+    background: var(--paper);
+    border-top: 1px solid var(--paper-line);
+    display: flex;
+    gap: 10px;
+  }
+  .composer textarea {
+    flex: 1;
+    resize: none;
+    font-family: 'Inter', sans-serif;
+    font-size: 0.92rem;
+    padding: 12px 14px;
+    border: 1px solid var(--paper-line);
+    border-radius: var(--radius);
+    background: var(--card);
+    color: var(--ink);
+    line-height: 1.4;
+    height: 46px;
+  }
+  .composer textarea:focus {
+    outline: none;
+    border-color: var(--indigo);
+    box-shadow: 0 0 0 3px rgba(44,62,102,0.12);
+  }
+  .composer button {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.78rem;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    background: var(--indigo);
+    color: #fff;
+    border: none;
+    border-radius: var(--radius);
+    padding: 0 22px;
+    cursor: pointer;
+    transition: background 0.15s;
+  }
+  .composer button:hover:not(:disabled) { background: #253654; }
+  .composer button:disabled { opacity: 0.5; cursor: default; }
+  .composer button:focus-visible, .subject:focus-visible {
+    outline: 2px solid var(--brass-bright);
+    outline-offset: 2px;
+  }
+
+  .empty-state {
+    margin: auto;
+    text-align: center;
+    color: var(--ink-soft);
+    max-width: 420px;
+    padding: 40px;
+  }
+  .empty-state .mark {
+    font-family: 'Source Serif 4', serif;
+    font-size: 2.4rem;
+    color: var(--brass);
+    margin-bottom: 6px;
+  }
+  .empty-state p { font-size: 0.88rem; line-height: 1.6; }
+
+  @media (prefers-reduced-motion: reduce) {
+    * { transition: none !important; }
+  }
+
+  @media (max-width: 720px) {
+    .spine { display: none; }
+    .ledger-header, .log, .composer { padding-left: 18px; padding-right: 18px; }
+  }
+</style>
+</head>
+<body>
+
+  <aside class="spine">
+    <h1>CAT</h1>
+    <div class="tagline">CA Tutor · Ask. Understand. Recall.</div>
+
+    <div class="subject active" data-subject="General" tabindex="0"><span class="dot"></span>General</div>
+    <div class="subject" data-subject="Accounting" tabindex="0"><span class="dot"></span>Accounting</div>
+    <div class="subject" data-subject="Corporate & Other Laws" tabindex="0"><span class="dot"></span>Corporate &amp; Other Laws</div>
+    <div class="subject" data-subject="Costing" tabindex="0"><span class="dot"></span>Costing</div>
+    <div class="subject" data-subject="Taxation" tabindex="0"><span class="dot"></span>Taxation</div>
+    <div class="subject" data-subject="Auditing" tabindex="0"><span class="dot"></span>Auditing</div>
+    <div class="subject" data-subject="Financial Management" tabindex="0"><span class="dot"></span>Financial Mgmt</div>
+
+    <div class="spine-footer">
+      Answers are AI-generated study support, not a substitute for ICAI study material — verify against your module before an exam.
+    </div>
+  </aside>
+
+  <main class="ledger">
+    <div class="ledger-header">
+      <div class="eyebrow" id="subjectEyebrow">Entry &middot; General</div>
+      <h2>Post a doubt, get it worked through</h2>
+    </div>
+
+    <div class="log" id="log">
+      <div class="empty-state" id="emptyState">
+        <div class="mark">§</div>
+        <p>Pick a subject on the left, then type your question below — a numerical problem, a section reference, a concept you're stuck on.</p>
+      </div>
+    </div>
+
+    <form class="composer" id="composer">
+      <textarea id="input" placeholder="e.g. How do I treat a contingent liability under AS 29?" required></textarea>
+      <button type="submit" id="sendBtn">Post entry</button>
+    </form>
+  </main>
+
+<script>
+  const log = document.getElementById('log');
+  const emptyState = document.getElementById('emptyState');
+  const form = document.getElementById('composer');
+  const input = document.getElementById('input');
+  const sendBtn = document.getElementById('sendBtn');
+  const subjectEyebrow = document.getElementById('subjectEyebrow');
+  const subjectEls = document.querySelectorAll('.subject');
+
+  let currentSubject = 'General';
+  let history = []; // {role, content}
+
+  subjectEls.forEach(el => {
+    el.addEventListener('click', () => selectSubject(el));
+    el.addEventListener('keydown', e => { if (e.key === 'Enter') selectSubject(el); });
+  });
+
+  function selectSubject(el) {
+    subjectEls.forEach(s => s.classList.remove('active'));
+    el.classList.add('active');
+    currentSubject = el.dataset.subject;
+    subjectEyebrow.textContent = 'Entry · ' + currentSubject;
+  }
+
+  function addEntry(role, text, pending = false) {
+    if (emptyState) emptyState.remove();
+    const entry = document.createElement('div');
+    entry.className = 'entry ' + (role === 'user' ? 'user' : 'ai') + (pending ? ' pending' : '');
+
+    const label = document.createElement('div');
+    label.className = 'label';
+    if (role === 'user') {
+      label.textContent = currentSubject;
+    } else {
+      label.innerHTML = '<span class="seal">✓</span> Answer';
+    }
+
+    const bubble = document.createElement('div');
+    bubble.className = 'bubble';
+    bubble.textContent = text;
+
+    entry.appendChild(label);
+    entry.appendChild(bubble);
+    log.appendChild(entry);
+    log.scrollTop = log.scrollHeight;
+    return entry;
+  }
+
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const text = input.value.trim();
+    if (!text) return;
+
+    const tagged = `[Subject: ${currentSubject}] ${text}`;
+    addEntry('user', text);
+    history.push({ role: 'user', content: tagged });
+    input.value = '';
+    sendBtn.disabled = true;
+
+    const pendingEntry = addEntry('ai', 'Working through it…', true);
+
+    try {
+      const res = await fetch('/api/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ messages: history }),
+      });
+      const data = await res.json();
+
+      pendingEntry.classList.remove('pending');
+      if (!res.ok) {
+        pendingEntry.querySelector('.bubble').textContent =
+          'Something went wrong reaching the tutor. Please try again.';
+      } else {
+        pendingEntry.querySelector('.bubble').textContent = data.reply;
+        history.push({ role: 'assistant', content: data.reply });
+      }
+    } catch (err) {
+      pendingEntry.classList.remove('pending');
+      pendingEntry.querySelector('.bubble').textContent =
+        'Network error — check that the server is running.';
+    } finally {
+      sendBtn.disabled = false;
+      input.focus();
+    }
+  });
+
+  input.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      form.requestSubmit();
+    }
+  });
+
+  // Register the service worker so mobile browsers offer "Add to Home Screen".
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('/sw.js').catch(err => {
+        console.warn('Service worker registration failed:', err);
+      });
+    });
+  }
+</script>
+</body>
+</html>
