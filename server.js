@@ -1,4 +1,4 @@
- // server.js — backend for the CA Doubt-Solver chatbot
+// server.js — backend for the CA Doubt-Solver chatbot
 // Keeps the Groq API key on the server; the browser never sees it.
 // Groq has a genuinely free tier (no card required) with generous daily limits.
 
@@ -10,9 +10,10 @@ import { fileURLToPath } from 'url';
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const app = express();
 const PORT = process.env.PORT || 3000;
+const GROQ_MODEL = process.env.GROQ_MODEL || 'openai/gpt-oss-20b';
 
 app.use(express.json({ limit: '1mb' }));
-app.use(express.static(path.join(__dirname, 'Public')));
+app.use(express.static(path.join(__dirname, 'public')));
 
 const SYSTEM_PROMPT = `You are a patient, precise tutor for Indian Chartered Accountancy (CA) students,
 covering CA Foundation, Intermediate, and Final level subjects: Accounting, Corporate & Other Laws,
@@ -41,6 +42,10 @@ app.post('/api/chat', async (req, res) => {
   const openaiMessages = [{ role: 'system', content: SYSTEM_PROMPT }, ...messages];
 
   try {
+    if (!process.env.GROQ_API_KEY) {
+      return res.status(500).json({ error: 'GROQ_API_KEY is not configured on the server' });
+    }
+
     const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
       method: 'POST',
       headers: {
@@ -48,10 +53,7 @@ app.post('/api/chat', async (req, res) => {
         'Authorization': `Bearer ${process.env.GROQ_API_KEY}`,
       },
       body: JSON.stringify({
-        // llama-3.3-70b-versatile is Groq's best free-tier quality/speed balance.
-        // Swap to 'llama-3.1-8b-instant' if you need higher request-per-day limits
-        // and can accept slightly lower answer quality.
-        model: 'llama-3.1-8b-instant',
+        model: GROQ_MODEL,
         max_tokens: 1500,
         messages: openaiMessages,
       }),
